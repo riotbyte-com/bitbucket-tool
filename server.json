@@ -1,0 +1,52 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.riotbyte-com/bitbucket",
+  "description": "MCP server for Bitbucket Cloud — pull requests, pipelines, branches, commits, and code review",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/riotbyte-com/bitbucket-tool",
+    "source": "github",
+    "subfolder": "packages/mcp-server"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "bitbucket-tool-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "BITBUCKET_TOKEN",
+          "description": "Bitbucket API token for Bearer authentication",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "BITBUCKET_OAUTH_CLIENT_ID",
+          "description": "OAuth 2.0 client ID (alternative to BITBUCKET_TOKEN)",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "BITBUCKET_OAUTH_CLIENT_SECRET",
+          "description": "OAuth 2.0 client secret (used with BITBUCKET_OAUTH_CLIENT_ID)",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "BITBUCKET_WORKSPACE",
+          "description": "Default Bitbucket workspace slug, can also be passed per tool call",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

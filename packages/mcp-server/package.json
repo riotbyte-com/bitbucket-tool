@@ -1,0 +1,29 @@
+{
+  "name": "bitbucket-tool-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Bitbucket Cloud — pull requests, pipelines, branches, and code review",
+  "license": "MIT",
+  "keywords": ["mcp", "bitbucket", "model-context-protocol", "pull-requests", "code-review"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riotbyte-com/bitbucket-tool.git",
+    "directory": "packages/mcp-server"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "bitbucket-tool-mcp": "./dist/index.js"
+  },
+  "mcpName": "io.github.riotbyte-com/bitbucket",
+  "files": ["dist"],
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/index.js --external:@modelcontextprotocol/sdk",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

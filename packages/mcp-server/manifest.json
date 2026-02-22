@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/dist/mcpb-manifest.schema.json",
+  "manifest_version": "0.3",
+  "name": "bitbucket-tool-mcp",
+  "display_name": "Bitbucket Tool",
+  "version": "0.1.0",
+  "description": "MCP server for Bitbucket Cloud — pull requests, pipelines, branches, and code review",
+  "long_description": "Gives Claude direct access to Bitbucket Cloud: list and review pull requests, manage branches, trigger pipelines, read commits and diffs, and add code review comments. Supports both API token and OAuth 2.0 authentication.",
+  "author": {
+    "name": "Niels Mokkenstorm",
+    "email": "niels@mokkenstorm.dev",
+    "url": "https://github.com/riotbyte-com/bitbucket-tool"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riotbyte-com/bitbucket-tool"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "BITBUCKET_TOKEN": "${user_config.bitbucket_token}",
+        "BITBUCKET_WORKSPACE": "${user_config.bitbucket_workspace}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "keywords": ["bitbucket", "git", "pull-requests", "pipelines", "code-review", "devtools"],
+  "license": "MIT",
+  "user_config": {
+    "bitbucket_token": {
+      "type": "string",
+      "title": "Bitbucket API Token",
+      "description": "App password or workspace access token from https://bitbucket.org/account/settings/app-passwords/",
+      "sensitive": true,
+      "required": true
+    },
+    "bitbucket_workspace": {
+      "type": "string",
+      "title": "Default Workspace",
+      "description": "Bitbucket workspace slug (e.g. 'my-company'). Can also be specified per tool call.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

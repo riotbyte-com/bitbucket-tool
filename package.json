@@ -1,0 +1,26 @@
+{
+  "name": "bitbucket-tool",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "generate:client": "curl -sL https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json -o /tmp/bitbucket-spec.json && tsx scripts/patch-spec.ts /tmp/bitbucket-spec.json && openapi-ts -i /tmp/bitbucket-spec.json -o ./packages/core/src/generated/bitbucket-client -c @hey-api/client-fetch",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' npm run build -w @bitbucket-tool/core && npm run build -w bitbucket-tool-cli && npm run build -w bitbucket-tool-mcp",
+    "dev:cli": "tsx packages/cli/src/bin/bb.ts",
+    "dev:mcp": "tsx packages/mcp-server/src/index.ts",
+    "test": "npm run test -w bitbucket-tool-mcp",
+    "lint": "biome check packages/ *.json",
+    "lint:fix": "biome check --write packages/ *.json",
+    "typecheck": "NODE_OPTIONS='--max-old-space-size=8192' npm run typecheck -w @bitbucket-tool/core && NODE_OPTIONS='--max-old-space-size=8192' npm run typecheck -w bitbucket-tool-cli && NODE_OPTIONS='--max-old-space-size=8192' npm run typecheck -w bitbucket-tool-mcp"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.10",
+    "@hey-api/openapi-ts": "^0.89.2",
+    "@types/node": "^25.0.3",
+    "esbuild": "^0.27.3",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "bitbucket-tool-cli",
+  "version": "0.1.0",
+  "description": "CLI for Bitbucket Cloud — pull requests, code review, and more",
+  "license": "MIT",
+  "keywords": ["bitbucket", "cli", "pull-requests", "code-review"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riotbyte-com/bitbucket-tool.git",
+    "directory": "packages/cli"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "bitbucket-tool-cli": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/bin/bb.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {}
+}
