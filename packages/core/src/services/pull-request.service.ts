@@ -44,14 +44,14 @@ export type AddCommentParams = PullRequestParams & {
 export const listPullRequests = async (
   params: ListPullRequestsParams
 ): Promise<Result<Pullrequest[]>> => {
-  const { workspace, repoSlug, state = 'OPEN' } = params;
+  const { workspace, repoSlug, state = 'OPEN', page, pagelen } = params;
   const response = await getRepositoriesByWorkspaceByRepoSlugPullrequests({
     path: { workspace, repo_slug: repoSlug },
-    query: { state },
+    query: { state, page, pagelen },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to list PRs`, response.error));
+    return fail(apiError(response.response?.status ?? 0, `Failed to list PRs`, response.error));
   }
 
   return ok(response.data?.values ?? []);
@@ -64,7 +64,7 @@ export const getPullRequest = async (params: PullRequestParams): Promise<Result<
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `PR #${prId} not found`, response.error));
+    return fail(apiError(response.response?.status ?? 0, `PR #${prId} not found`, response.error));
   }
 
   return response.data ? ok(response.data) : fail(apiError(404, `PR #${prId} not found`));
@@ -86,7 +86,7 @@ export const createPullRequest = async (
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to create PR`, response.error));
+    return fail(apiError(response.response?.status ?? 0, `Failed to create PR`, response.error));
   }
 
   return response.data
@@ -98,13 +98,28 @@ export const updatePullRequest = async (
   params: UpdatePullRequestParams
 ): Promise<Result<Pullrequest>> => {
   const { workspace, repoSlug, prId, updates } = params;
+
+  const current = await getPullRequest({ workspace, repoSlug, prId });
+  if (!current.ok) {
+    return current;
+  }
+
+  const merged = {
+    type: 'pullrequest' as const,
+    title: updates.title ?? current.data.title ?? '',
+    description: updates.description ?? current.data.description ?? '',
+    destination: updates.destination ?? current.data.destination,
+  };
+
   const response = await putRepositoriesByWorkspaceByRepoSlugPullrequestsByPullRequestId({
     path: { workspace, repo_slug: repoSlug, pull_request_id: prId },
-    body: { type: 'pullrequest', ...updates },
+    body: merged,
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to update PR #${prId}`, response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, `Failed to update PR #${prId}`, response.error)
+    );
   }
 
   return response.data ? ok(response.data) : fail(apiError(500, 'No data returned from PR update'));
@@ -118,7 +133,7 @@ export const addComment = async (params: AddCommentParams): Promise<Result<void>
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to add comment`, response.error));
+    return fail(apiError(response.response?.status ?? 0, `Failed to add comment`, response.error));
   }
 
   return ok(undefined);
@@ -127,13 +142,16 @@ export const addComment = async (params: AddCommentParams): Promise<Result<void>
 export const getPullRequestComments = async (
   params: PullRequestParams & PaginationParams
 ): Promise<Result<PullrequestComment[]>> => {
-  const { workspace, repoSlug, prId } = params;
+  const { workspace, repoSlug, prId, page, pagelen } = params;
   const response = await getRepositoriesByWorkspaceByRepoSlugPullrequestsByPullRequestIdComments({
     path: { workspace, repo_slug: repoSlug, pull_request_id: prId },
+    query: { page, pagelen },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to get PR comments`, response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, `Failed to get PR comments`, response.error)
+    );
   }
 
   return ok(response.data?.values ?? []);
@@ -147,7 +165,7 @@ export const declinePullRequest = async (params: PullRequestParams): Promise<Res
 
   if (response.error) {
     return fail(
-      apiError(response.response.status, `Failed to decline PR #${prId}`, response.error)
+      apiError(response.response?.status ?? 0, `Failed to decline PR #${prId}`, response.error)
     );
   }
 
@@ -162,7 +180,7 @@ export const getPullRequestDiff = async (params: PullRequestParams): Promise<Res
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Failed to get PR diff`, response.error));
+    return fail(apiError(response.response?.status ?? 0, `Failed to get PR diff`, response.error));
   }
 
   return ok((response.data as unknown as string) ?? '');

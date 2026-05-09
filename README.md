@@ -23,13 +23,16 @@ Add to your Claude Desktop / Claude Code config:
       "command": "npx",
       "args": ["-y", "bitbucket-tool-mcp"],
       "env": {
-        "BITBUCKET_TOKEN": "your-api-token",
+        "BITBUCKET_USERNAME": "your-atlassian-email",
+        "BITBUCKET_TOKEN": "your-atlassian-api-token",
         "BITBUCKET_WORKSPACE": "your-workspace"
       }
     }
   }
 }
 ```
+
+If `cwd` points at a checkout with a Bitbucket git remote, the server auto-detects workspace and repo, so you can omit `BITBUCKET_WORKSPACE` and the per-tool `repo_slug` argument.
 
 See [MCP server README](./packages/mcp-server/README.md) for full documentation.
 
@@ -76,10 +79,10 @@ bitbucket-tool/
 
 Set one of:
 
-- **API token**: `BITBUCKET_TOKEN` env var
-- **OAuth 2.0**: `BITBUCKET_OAUTH_CLIENT_ID` + `BITBUCKET_OAUTH_CLIENT_SECRET`
+- **Atlassian API token** (recommended): `BITBUCKET_USERNAME` (your Atlassian account email) + `BITBUCKET_TOKEN` (an [API token](https://id.atlassian.com/manage-profile/security/api-tokens) scoped for Bitbucket). Sent as HTTP Basic auth.
+- **OAuth 2.0**: `BITBUCKET_OAUTH_CLIENT_ID` + `BITBUCKET_OAUTH_CLIENT_SECRET`. First run opens a browser to authorize; tokens are cached in `~/.bitbucket-oauth.json` and refreshed automatically.
 
-Optionally set `BITBUCKET_WORKSPACE` as a default workspace.
+Optionally set `BITBUCKET_WORKSPACE` and `BITBUCKET_REPO` as defaults. The CLI and MCP server also auto-detect both from the git remote of the working directory.
 
 ## License
 

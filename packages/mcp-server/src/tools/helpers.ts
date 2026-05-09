@@ -1,17 +1,21 @@
-import type { Result } from '@bitbucket-tool/core';
+import { type Result, resolveWorkspaceAndRepo } from '@bitbucket-tool/core';
 
 type ToolResponse = { content: { type: 'text'; text: string }[]; isError?: boolean };
 
-export const resolveWorkspace = (workspace: string): string => {
+export const resolveRepo = (
+  workspace?: string,
+  repoSlug?: string
+): { workspace: string; repoSlug: string } =>
+  resolveWorkspaceAndRepo({ workspace: workspace || undefined, repoSlug: repoSlug || undefined });
+
+export const resolveWorkspace = (workspace?: string): string => {
   const resolved = workspace || process.env.BITBUCKET_WORKSPACE;
 
-  if (!resolved) {
-    throw new Error(
-      'workspace is required. Provide it as a parameter or set BITBUCKET_WORKSPACE env var.'
-    );
+  if (resolved) {
+    return resolved;
   }
 
-  return resolved;
+  return resolveWorkspaceAndRepo({}).workspace;
 };
 
 export const jsonResponse = (data: unknown): ToolResponse => ({

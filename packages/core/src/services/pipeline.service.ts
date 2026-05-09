@@ -51,7 +51,9 @@ export const listPipelines = async (params: ListPipelinesParams): Promise<Result
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to list pipelines', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to list pipelines', response.error)
+    );
   }
 
   return ok(response.data?.values ?? []);
@@ -64,7 +66,7 @@ export const getPipeline = async (params: GetPipelineParams): Promise<Result<Pip
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Pipeline not found', response.error));
+    return fail(apiError(response.response?.status ?? 0, 'Pipeline not found', response.error));
   }
 
   return response.data ? ok(response.data) : fail(apiError(404, 'Pipeline not found'));
@@ -79,7 +81,9 @@ export const getPipelineSteps = async (
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to get pipeline steps', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to get pipeline steps', response.error)
+    );
   }
 
   return ok(response.data?.values ?? []);
@@ -100,7 +104,7 @@ export const getPipelineStepLog = async (
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to get step log', response.error));
+    return fail(apiError(response.response?.status ?? 0, 'Failed to get step log', response.error));
   }
 
   return ok((response.data as unknown as string) ?? '');
@@ -114,7 +118,9 @@ export const triggerPipeline = async (params: TriggerPipelineParams): Promise<Re
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to trigger pipeline', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to trigger pipeline', response.error)
+    );
   }
 
   return response.data
@@ -129,7 +135,9 @@ export const stopPipelineExecution = async (params: StopPipelineParams): Promise
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to stop pipeline', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to stop pipeline', response.error)
+    );
   }
 
   return ok(undefined);

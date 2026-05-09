@@ -13,6 +13,16 @@ vi.mock('@bitbucket-tool/core', () => ({
   getPullRequestComments: vi.fn(),
   addComment: vi.fn(),
   getPullRequestDiff: vi.fn(),
+  resolveWorkspaceAndRepo: ({
+    workspace,
+    repoSlug,
+  }: {
+    workspace?: string;
+    repoSlug?: string;
+  } = {}) => ({
+    workspace: workspace ?? 'test-workspace',
+    repoSlug: repoSlug ?? 'test-repo',
+  }),
 }));
 
 import {

@@ -19,13 +19,14 @@ export type GetCommitParams = {
 };
 
 export const listCommits = async (params: ListCommitsParams): Promise<Result<BaseCommit[]>> => {
-  const { workspace, repoSlug } = params;
+  const { workspace, repoSlug, page, pagelen } = params;
   const response = await getRepositoriesByWorkspaceByRepoSlugCommits({
     path: { workspace, repo_slug: repoSlug },
+    query: { page, pagelen },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to list commits', response.error));
+    return fail(apiError(response.response?.status ?? 0, 'Failed to list commits', response.error));
   }
 
   return ok(response.data?.values ?? []);
@@ -38,7 +39,9 @@ export const getCommit = async (params: GetCommitParams): Promise<Result<Commit>
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Commit '${commit}' not found`, response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, `Commit '${commit}' not found`, response.error)
+    );
   }
 
   return response.data ? ok(response.data) : fail(apiError(404, `Commit '${commit}' not found`));

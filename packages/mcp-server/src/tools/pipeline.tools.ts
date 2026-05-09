@@ -11,45 +11,52 @@ import {
   listPipelinesSchema,
   triggerPipelineSchema,
 } from '../schemas/pipeline.schemas';
-import { resolveWorkspace, resultToResponse } from './helpers';
+import { resolveRepo, resultToResponse } from './helpers';
 
 export const registerPipelineTools = (server: McpServer): void => {
-  server.tool(
+  server.registerTool(
     'list_pipelines',
-    'List recent pipelines for a repository. Returns pipeline UUIDs, status, and trigger info.',
-    listPipelinesSchema,
-    { readOnlyHint: true },
+    {
+      description:
+        'List recent pipelines for a repository. Returns pipeline UUIDs, status, and trigger info.',
+      inputSchema: listPipelinesSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, repo_slug, page, pagelen }) => {
-      const w = resolveWorkspace(workspace);
-      return resultToResponse(
-        await listPipelines({ workspace: w, repoSlug: repo_slug, page, pagelen })
-      );
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
+      return resultToResponse(await listPipelines({ workspace: w, repoSlug, page, pagelen }));
     }
   );
 
-  server.tool(
+  server.registerTool(
     'get_pipeline',
-    'Get details of a specific pipeline including steps, status, and duration. Use list_pipelines to find pipeline UUIDs.',
-    getPipelineSchema,
-    { readOnlyHint: true },
+    {
+      description:
+        'Get details of a specific pipeline including steps, status, and duration. Use list_pipelines to find pipeline UUIDs.',
+      inputSchema: getPipelineSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, repo_slug, pipeline_uuid }) => {
-      const w = resolveWorkspace(workspace);
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
       return resultToResponse(
-        await getPipeline({ workspace: w, repoSlug: repo_slug, pipelineUuid: pipeline_uuid })
+        await getPipeline({ workspace: w, repoSlug, pipelineUuid: pipeline_uuid })
       );
     }
   );
 
-  server.tool(
+  server.registerTool(
     'get_pipeline_step_log',
-    'Get the log output of a specific pipeline step. Returns raw text. Use get_pipeline to find step UUIDs.',
-    getPipelineStepLogSchema,
-    { readOnlyHint: true },
+    {
+      description:
+        'Get the log output of a specific pipeline step. Returns raw text. Use get_pipeline to find step UUIDs.',
+      inputSchema: getPipelineStepLogSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, repo_slug, pipeline_uuid, step_uuid }) => {
-      const w = resolveWorkspace(workspace);
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
       const result = await getPipelineStepLog({
         workspace: w,
-        repoSlug: repo_slug,
+        repoSlug,
         pipelineUuid: pipeline_uuid,
         stepUuid: step_uuid,
       });
@@ -58,18 +65,20 @@ export const registerPipelineTools = (server: McpServer): void => {
     }
   );
 
-  // @ts-expect-error TS2589: MCP SDK overload resolution + transitive generated types exceed TypeScript recursion limit
-  server.tool(
+  // @ts-expect-error TS2589: deep Zod inference in MCP SDK's ShapeOutput exceeds recursion limit
+  server.registerTool(
     'trigger_pipeline',
-    'Trigger a new pipeline run on a branch or tag. Optionally specify a custom pipeline pattern.',
-    triggerPipelineSchema,
-    { readOnlyHint: false },
+    {
+      description:
+        'Trigger a new pipeline run on a branch or tag. Optionally specify a custom pipeline pattern.',
+      inputSchema: triggerPipelineSchema,
+    },
     async ({ workspace, repo_slug, ref_name, ref_type, pattern }) => {
-      const w = resolveWorkspace(workspace);
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
       return resultToResponse(
         await triggerPipeline({
           workspace: w,
-          repoSlug: repo_slug,
+          repoSlug,
           target: {
             type: 'pipeline_ref_target',
             ref_type: ref_type ?? 'branch',

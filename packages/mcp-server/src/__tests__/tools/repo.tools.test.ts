@@ -10,6 +10,16 @@ vi.mock('@bitbucket-tool/core', () => ({
   getBranch: vi.fn(),
   createBranch: vi.fn(),
   deleteBranch: vi.fn(),
+  resolveWorkspaceAndRepo: ({
+    workspace,
+    repoSlug,
+  }: {
+    workspace?: string;
+    repoSlug?: string;
+  } = {}) => ({
+    workspace: workspace ?? 'test-workspace',
+    repoSlug: repoSlug ?? 'test-repo',
+  }),
 }));
 
 import {

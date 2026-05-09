@@ -7,6 +7,16 @@ import { registerAllTools } from '../../tools';
 vi.mock('@bitbucket-tool/core', () => ({
   listCommits: vi.fn(),
   getCommit: vi.fn(),
+  resolveWorkspaceAndRepo: ({
+    workspace,
+    repoSlug,
+  }: {
+    workspace?: string;
+    repoSlug?: string;
+  } = {}) => ({
+    workspace: workspace ?? 'test-workspace',
+    repoSlug: repoSlug ?? 'test-repo',
+  }),
 }));
 
 import { getCommit, listCommits } from '@bitbucket-tool/core';
