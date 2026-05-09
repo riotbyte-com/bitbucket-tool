@@ -1,7 +1,7 @@
 // Auth
 export type { AuthConfig, AuthHeader, AuthProvider, StoredTokens } from './auth';
 export {
-  createBearerAuthProvider,
+  createApiTokenAuthProvider,
   createOAuthProvider,
   resolveAuth,
   resolveAuthConfig,
