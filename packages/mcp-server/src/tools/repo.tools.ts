@@ -13,66 +13,76 @@ import {
   listBranchesSchema,
   listRepositoriesSchema,
 } from '../schemas/repo.schemas';
-import { resolveWorkspace, resultToResponse } from './helpers';
+import { resolveRepo, resolveWorkspace, resultToResponse } from './helpers';
 
 export const registerRepoTools = (server: McpServer): void => {
-  server.tool(
+  server.registerTool(
     'list_repositories',
-    'List repositories in a workspace. Returns repo slugs needed by most other tools.',
-    listRepositoriesSchema,
-    { readOnlyHint: true },
+    {
+      description:
+        'List repositories in a workspace. Returns repo slugs needed by most other tools.',
+      inputSchema: listRepositoriesSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, page, pagelen }) => {
       const w = resolveWorkspace(workspace);
       return resultToResponse(await listRepositories({ workspace: w, page, pagelen }));
     }
   );
 
-  server.tool(
+  server.registerTool(
     'list_branches',
-    'List branches in a repository. Use to find branch names for creating PRs or triggering pipelines.',
-    listBranchesSchema,
-    { readOnlyHint: true },
+    {
+      description:
+        'List branches in a repository. Use to find branch names for creating PRs or triggering pipelines.',
+      inputSchema: listBranchesSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, repo_slug, page, pagelen }) => {
-      const w = resolveWorkspace(workspace);
-      return resultToResponse(
-        await listBranches({ workspace: w, repoSlug: repo_slug, page, pagelen })
-      );
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
+      return resultToResponse(await listBranches({ workspace: w, repoSlug, page, pagelen }));
     }
   );
 
-  server.tool(
+  server.registerTool(
     'get_branch',
-    'Get details of a specific branch including latest commit hash.',
-    getBranchSchema,
-    { readOnlyHint: true },
+    {
+      description: 'Get details of a specific branch including latest commit hash.',
+      inputSchema: getBranchSchema,
+      annotations: { readOnlyHint: true },
+    },
     async ({ workspace, repo_slug, name }) => {
-      const w = resolveWorkspace(workspace);
-      return resultToResponse(await getBranch({ workspace: w, repoSlug: repo_slug, name }));
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
+      return resultToResponse(await getBranch({ workspace: w, repoSlug, name }));
     }
   );
 
-  server.tool(
+  server.registerTool(
     'create_branch',
-    'Create a new branch from a commit hash or existing branch. Use get_branch to find the target commit hash.',
-    createBranchSchema,
-    { readOnlyHint: false, idempotentHint: true },
+    {
+      description:
+        'Create a new branch from a commit hash or existing branch. Use get_branch to find the target commit hash.',
+      inputSchema: createBranchSchema,
+      annotations: { idempotentHint: true },
+    },
     async ({ workspace, repo_slug, name, target }) => {
-      const w = resolveWorkspace(workspace);
-      return resultToResponse(
-        await createBranch({ workspace: w, repoSlug: repo_slug, name, target })
-      );
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
+      return resultToResponse(await createBranch({ workspace: w, repoSlug, name, target }));
     }
   );
 
-  server.tool(
+  server.registerTool(
     'delete_branch',
-    'Delete a branch. This is irreversible. Use list_branches to verify the branch name first.',
-    deleteBranchSchema,
-    { readOnlyHint: false, destructiveHint: true },
+    {
+      description:
+        'Delete a branch. This is irreversible. Use list_branches to verify the branch name first.',
+      inputSchema: deleteBranchSchema,
+      annotations: { destructiveHint: true },
+    },
     async ({ workspace, repo_slug, name }) => {
-      const w = resolveWorkspace(workspace);
+      const { workspace: w, repoSlug } = resolveRepo(workspace, repo_slug);
       return resultToResponse(
-        await deleteBranch({ workspace: w, repoSlug: repo_slug, name }),
+        await deleteBranch({ workspace: w, repoSlug, name }),
         () => 'Branch deleted.'
       );
     }

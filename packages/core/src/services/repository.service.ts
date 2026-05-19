@@ -40,26 +40,32 @@ export type DeleteBranchParams = {
 export const listRepositories = async (
   params: ListRepositoriesParams
 ): Promise<Result<Repository[]>> => {
-  const { workspace } = params;
+  const { workspace, page, pagelen } = params;
   const response = await getRepositoriesByWorkspace({
     path: { workspace },
+    query: { page, pagelen },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to list repositories', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to list repositories', response.error)
+    );
   }
 
   return ok(response.data?.values ?? []);
 };
 
 export const listBranches = async (params: ListBranchesParams): Promise<Result<Branch[]>> => {
-  const { workspace, repoSlug } = params;
+  const { workspace, repoSlug, page, pagelen } = params;
   const response = await getRepositoriesByWorkspaceByRepoSlugRefsBranches({
     path: { workspace, repo_slug: repoSlug },
+    query: { page, pagelen },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to list branches', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to list branches', response.error)
+    );
   }
 
   return ok(response.data?.values ?? []);
@@ -72,7 +78,9 @@ export const getBranch = async (params: GetBranchParams): Promise<Result<Branch>
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, `Branch '${name}' not found`, response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, `Branch '${name}' not found`, response.error)
+    );
   }
 
   return response.data ? ok(response.data) : fail(apiError(404, `Branch '${name}' not found`));
@@ -82,11 +90,13 @@ export const createBranch = async (params: CreateBranchParams): Promise<Result<B
   const { workspace, repoSlug, name, target } = params;
   const response = await postRepositoriesByWorkspaceByRepoSlugRefsBranches({
     path: { workspace, repo_slug: repoSlug },
-    body: { name, target: { hash: target } } as never,
+    body: { name, target: { hash: target } },
   });
 
   if (response.error) {
-    return fail(apiError(response.response.status, 'Failed to create branch', response.error));
+    return fail(
+      apiError(response.response?.status ?? 0, 'Failed to create branch', response.error)
+    );
   }
 
   return response.data
@@ -102,7 +112,7 @@ export const deleteBranch = async (params: DeleteBranchParams): Promise<Result<v
 
   if (response.error) {
     return fail(
-      apiError(response.response.status, `Failed to delete branch '${name}'`, response.error)
+      apiError(response.response?.status ?? 0, `Failed to delete branch '${name}'`, response.error)
     );
   }
 

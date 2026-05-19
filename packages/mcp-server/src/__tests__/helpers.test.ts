@@ -29,12 +29,12 @@ describe('resolveWorkspace', () => {
 
   it('throws when neither provided nor env var set', () => {
     vi.stubEnv('BITBUCKET_WORKSPACE', '');
-    expect(() => resolveWorkspace('')).toThrow('workspace is required');
+    expect(() => resolveWorkspace('')).toThrow(/workspace.*required/);
   });
 
   it('throws when workspace is empty and env var is undefined', () => {
     delete process.env.BITBUCKET_WORKSPACE;
-    expect(() => resolveWorkspace('')).toThrow('workspace is required');
+    expect(() => resolveWorkspace('')).toThrow(/workspace.*required/);
   });
 });
 

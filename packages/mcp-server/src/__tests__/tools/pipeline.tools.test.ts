@@ -9,6 +9,16 @@ vi.mock('@bitbucket-tool/core', () => ({
   getPipeline: vi.fn(),
   getPipelineStepLog: vi.fn(),
   triggerPipeline: vi.fn(),
+  resolveWorkspaceAndRepo: ({
+    workspace,
+    repoSlug,
+  }: {
+    workspace?: string;
+    repoSlug?: string;
+  } = {}) => ({
+    workspace: workspace ?? 'test-workspace',
+    repoSlug: repoSlug ?? 'test-repo',
+  }),
 }));
 
 import {
